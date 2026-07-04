@@ -1,0 +1,85 @@
+version: 2
+
+sources:
+  - name: raw
+    schema: public
+    description: Tables loaded by the Python transform / ingestion layer (see data_platform/ingestion).
+    tables:
+      - name: raw_dvf_transaction
+        description: Geo-DVF rows as landed (TEXT columns + lineage).
+        columns:
+          - name: raw_id
+            description: Surrogate key for one landed CSV row (grain of raw DVF export).
+      - name: raw_insee_cog_commune
+        description: INSEE COG communes (Code Officiel Géographique), one row per commune × millésime.
+        columns:
+          - name: raw_id
+            description: Surrogate key for one landed CSV row.
+          - name: com
+            description: Code commune INSEE (5 chars).
+          - name: millesime
+            description: Year of the COG release (auto-detected from filename).
+      - name: raw_insee_cog_departement
+        description: INSEE COG départements, one row per département × millésime.
+      - name: raw_insee_cog_region
+        description: INSEE COG régions, one row per région × millésime.
+      - name: raw_bpe_equipement
+        description: INSEE BPE équipements, one row per équipement.
+        columns:
+          - name: raw_id
+            description: Surrogate key for one landed CSV row.
+          - name: typequ
+            description: Equipment type code (e.g. C101 = école maternelle).
+      - name: raw_filosofi
+        description: INSEE FiLoSoFi indicators at commune or IRIS level.
+        columns:
+          - name: raw_id
+            description: Surrogate key for one landed CSV row.
+          - name: kind
+            description: "'commune' or 'iris'."
+          - name: codgeo
+            description: Code commune (5 chars) or code IRIS (9 chars).
+      - name: raw_interest_rate
+        description: Monthly bank interest rates (ECB MIR / Banque de France), one row per series × month.
+        columns:
+          - name: raw_id
+            description: Surrogate key for one landed CSV row.
+          - name: period
+            description: ISO month, e.g. 2026-03.
+      - name: raw_taxe_fonciere
+        description: DGFiP taxe foncière rates, one row per commune × exercice.
+        columns:
+          - name: raw_id
+            description: Surrogate key for one landed CSV row.
+          - name: insee_com
+            description: Code commune INSEE (5 chars).
+      - name: raw_qpv
+        description: ANCT Quartiers Prioritaires de la Ville, one row per quartier prioritaire.
+        columns:
+          - name: raw_id
+            description: Surrogate key for one landed CSV row.
+          - name: insee_com
+            description: Host commune INSEE code.
+      - name: raw_rp_csp
+        description: INSEE RP active population by socio-professional category, one row per IRIS.
+        columns:
+          - name: raw_id
+            description: Surrogate key for one landed CSV row.
+          - name: code_com
+            description: Commune INSEE code (5 chars).
+      - name: raw_delinquance
+        description: SSMSI recorded-crime statistics, one row per commune × year × indicator.
+        columns:
+          - name: raw_id
+            description: Surrogate key for one landed CSV row.
+          - name: codgeo
+            description: Commune INSEE code.
+      - name: raw_code_postal
+        description: La Poste base officielle des codes postaux, one row per (commune, postal code).
+        columns:
+          - name: raw_id
+            description: Surrogate key for one landed CSV row.
+          - name: code_commune
+            description: Commune INSEE code (5 chars).
+          - name: code_postal
+            description: 5-digit postal code.

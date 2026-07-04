@@ -1,0 +1,13 @@
+# Copy to ~/.dbt/profiles.yml or set DBT_PROFILES_DIR to this directory and rename to profiles.yml.
+homepedia:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: localhost
+      port: 5432
+      user: homepedia
+      password: homepedia
+      dbname: homepedia
+      schema: public
+      threads: 4

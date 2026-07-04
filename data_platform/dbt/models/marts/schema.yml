@@ -1,0 +1,148 @@
+version: 2
+
+models:
+  - name: dim_location
+    description: Commune-level location dimension (COG primary, DVF fallback).
+    columns:
+      - name: location_id
+        tests:
+          - not_null
+          - unique
+      - name: code_commune
+        tests:
+          - not_null
+          - unique
+      - name: code_postal
+        description: Most frequent DVF postal code per commune (nullable when absent in source).
+
+  - name: dim_departement
+    description: Département dimension from INSEE COG.
+    columns:
+      - name: departement_id
+        tests:
+          - not_null
+          - unique
+      - name: code_departement
+        tests:
+          - not_null
+          - unique
+
+  - name: dim_region
+    description: Région dimension from INSEE COG.
+    columns:
+      - name: region_id
+        tests:
+          - not_null
+          - unique
+      - name: code_region
+        tests:
+          - not_null
+          - unique
+
+  - name: fact_transaction
+    description: DVF-derived transaction lines (see model SQL grain comment).
+    columns:
+      - name: transaction_id
+        tests:
+          - not_null
+          - unique
+      - name: location_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_location')
+                field: location_id
+
+  - name: fact_equipment
+    description: BPE-derived equipment lines (one row per équipement).
+    columns:
+      - name: equipment_id
+        tests:
+          - not_null
+          - unique
+      - name: location_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_location')
+                field: location_id
+
+  - name: app_city_housing_summary
+    description: Pre-aggregated commune × month DVF metrics for API/UI.
+
+  - name: app_city_social_summary
+    description: FiLoSoFi social indicators per commune (latest millésime).
+    columns:
+      - name: code_commune
+        tests:
+          - not_null
+          - unique
+
+  - name: app_city_equipment_summary
+    description: BPE equipment counts per commune.
+    columns:
+      - name: code_commune
+        tests:
+          - not_null
+          - unique
+
+  - name: app_iris_social_summary
+    description: FiLoSoFi social indicators per IRIS (latest millésime).
+    columns:
+      - name: code_iris
+        tests:
+          - not_null
+          - unique
+
+  - name: app_opportunity_score
+    description: >
+      Composite opportunity score per commune × period_month combining price (DVF),
+      social mix (FiLoSoFi income/poverty + RP CSP diversity + ANCT QPV), and quality
+      of life (BPE equipment density + SSMSI safety). Borrowing capacity uses the real
+      monthly ECB/BdF housing-loan rate; DGFiP taxe foncière is exposed as holding cost.
+    columns:
+      - name: code_commune
+        tests:
+          - not_null
+      - name: period_month
+        tests:
+          - not_null
+      - name: price_score
+        description: 0-100, higher = cheaper relative to other communes in the same month.
+      - name: social_mix_score
+        description: 0-100 from income, poverty (FiLoSoFi), CSP diversity (RP) and QPV presence (ANCT).
+      - name: quality_of_life_score
+        description: 0-100 blending BPE equipment density and SSMSI safety (inverse crime rate).
+      - name: csp_diversity_index
+        description: Simpson diversity of the 6 CSP shares of the active 15-64 population (0-1).
+      - name: qpv_share
+        description: Number of Quartiers Prioritaires hosted by the commune (0 when none).
+      - name: safety_index
+        description: 0-100, higher = safer (inverse percentile of total recorded-crime rate). NULL if no SSMSI data.
+      - name: transit_accessibility
+        description: Reserved for GTFS-derived transit access. NULL until GTFS ingestion is added.
+      - name: property_tax_rate_pct
+        description: DGFiP taxe foncière global rate on built property (latest exercice), in percent.
+      - name: assumed_interest_rate
+        description: Monthly housing-loan rate used for capacity (real ECB/BdF rate, else var fallback).
+      - name: borrowing_capacity_eur
+        description: Indicative loan principal affordable from median income at assumed_max_dti over the term.
+      - name: price_to_capacity_ratio
+        description: Median sale value ÷ borrowing capacity (>1 = out of reach on the local median income).
+      - name: composite_score
+        description: Weighted mean of non-NULL dimension scores. 0-100.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - code_commune
+            - period_month
+      - dbt_utils.expression_is_true:
+          expression: "composite_score IS NULL OR (composite_score >= 0 AND composite_score <= 100)"
+      - dbt_utils.expression_is_true:
+          expression: "price_score IS NULL OR (price_score >= 0 AND price_score <= 100)"
+      - dbt_utils.expression_is_true:
+          expression: "social_mix_score IS NULL OR (social_mix_score >= 0 AND social_mix_score <= 100)"
+      - dbt_utils.expression_is_true:
+          expression: "quality_of_life_score IS NULL OR (quality_of_life_score >= 0 AND quality_of_life_score <= 100)"

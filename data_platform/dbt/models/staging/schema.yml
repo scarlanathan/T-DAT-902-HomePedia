@@ -1,0 +1,50 @@
+version: 2
+
+models:
+  - name: stg_dvf__transaction
+    description: Typed geo-DVF rows; same grain as raw (one CSV line).
+    columns:
+      - name: raw_id
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_cog__commune
+    description: Typed INSEE COG commune rows.
+    columns:
+      - name: raw_id
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_cog__departement
+    description: Typed INSEE COG département rows.
+    columns:
+      - name: raw_id
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_cog__region
+    description: Typed INSEE COG région rows.
+    columns:
+      - name: raw_id
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_bpe__equipement
+    description: Typed INSEE BPE équipement rows.
+    columns:
+      - name: raw_id
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_filosofi__indicator
+    description: Typed INSEE FiLoSoFi indicator rows.
+    columns:
+      - name: raw_id
+        tests:
+          - not_null
+          - unique

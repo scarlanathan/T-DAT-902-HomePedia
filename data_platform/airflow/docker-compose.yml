@@ -1,0 +1,119 @@
+# Airflow (LocalExecutor) for Homepedia ingestion orchestration (HOM-22).
+#
+# Reaches the data_platform Postgres (started by ../docker-compose.yml) over the
+# host gateway by default — both stacks are independent. The whole data_platform
+# repo is mounted at /opt/homepedia/data_platform so the DAGs run the same
+# scripts/load_*.sh and scripts/dbt.sh used for manual loads.
+#
+#   cp .env.example .env        # set AIRFLOW_UID, source URLs, etc.
+#   docker compose up -d        # webserver on http://localhost:8080 (admin/admin)
+#
+# Note: Airflow keeps its OWN metadata Postgres (service "airflow-meta"); it does
+# not touch the homepedia warehouse.
+
+x-airflow-common: &airflow-common
+  build: .
+  env_file:
+    - .env
+  environment: &airflow-common-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-meta:5432/airflow
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
+    AIRFLOW__WEBSERVER__EXPOSE_CONFIG: "true"
+    AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: "true"
+    # --- Homepedia data_platform connection (the warehouse, NOT airflow-meta) ---
+    DATA_PLATFORM_ROOT: /opt/homepedia/data_platform
+    DBT_PROFILES_DIR: /opt/homepedia/data_platform/dbt
+    POSTGRES_HOST: ${POSTGRES_HOST:-host.docker.internal}
+    POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+    POSTGRES_USER: ${POSTGRES_USER:-homepedia}
+    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-homepedia}
+    POSTGRES_DEV_DB: ${POSTGRES_DEV_DB:-homepedia}
+    POSTGRES_SCHEMA: ${POSTGRES_SCHEMA:-public}
+    # --- Optional ingestion overrides (see .env.example) ---
+    DVF_CSV_URL: ${DVF_CSV_URL:-}
+    DVF_MAX_ROWS: ${DVF_MAX_ROWS:-}
+    COG_COMMUNE_URL: ${COG_COMMUNE_URL:-}
+    COG_DEPARTEMENT_URL: ${COG_DEPARTEMENT_URL:-}
+    COG_REGION_URL: ${COG_REGION_URL:-}
+    BPE_URL: ${BPE_URL:-}
+    BPE_MILLESIME: ${BPE_MILLESIME:-}
+    BPE_TYPEQU_FILTER: ${BPE_TYPEQU_FILTER:-}
+    FILOSOFI_COMMUNE_URL: ${FILOSOFI_COMMUNE_URL:-}
+    FILOSOFI_IRIS_URL: ${FILOSOFI_IRIS_URL:-}
+    SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL:-}
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./logs:/opt/airflow/logs
+    - ./plugins:/opt/airflow/plugins
+    - ..:/opt/homepedia/data_platform:rw
+  user: "${AIRFLOW_UID:-50000}:0"
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+  depends_on:
+    airflow-meta:
+      condition: service_healthy
+
+services:
+  airflow-meta:
+    image: postgres:16
+    container_name: homepedia-airflow-meta
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - airflow_meta_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  airflow-init:
+    <<: *airflow-common
+    container_name: homepedia-airflow-init
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        airflow db migrate
+        airflow users create \
+          --username "${_AIRFLOW_WWW_USER_USERNAME:-admin}" \
+          --password "${_AIRFLOW_WWW_USER_PASSWORD:-admin}" \
+          --firstname Homepedia --lastname Admin \
+          --role Admin --email admin@homepedia.local || true
+    restart: on-failure
+
+  airflow-scheduler:
+    <<: *airflow-common
+    container_name: homepedia-airflow-scheduler
+    command: scheduler
+    restart: unless-stopped
+    depends_on:
+      airflow-meta:
+        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully
+
+  airflow-webserver:
+    <<: *airflow-common
+    container_name: homepedia-airflow-webserver
+    command: webserver
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+    depends_on:
+      airflow-meta:
+        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully
+
+volumes:
+  airflow_meta_data:

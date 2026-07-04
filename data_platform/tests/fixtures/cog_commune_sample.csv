@@ -1,0 +1,27 @@
+TYPECOM,COM,REG,DEP,CTCD,ARR,TNCC,NCC,NCCENR,LIBELLE,CAN,COMPARENT
+COM,01001,84,01,,,0,L ABERGEMENT CLÉMENCIAT,L'Abergement-Clémenciat,L'Abergement-Clémenciat,,
+COM,01367,84,01,,,0,SAINT JULIEN SUR REYSSOUZE,Saint-Julien-sur-Reyssouze,Saint-Julien-sur-Reyssouze,,
+COM,06088,93,06,,,0,NICE,Nice,Nice,,
+COM,13055,93,13,,,0,MARSEILLE,Marseille,Marseille,,
+ARM,13201,93,13,,,0,MARSEILLE 1ER,Marseille 1er,Marseille 1er,,13055
+ARM,13202,93,13,,,0,MARSEILLE 2E,Marseille 2e,Marseille 2e,,13055
+ARM,13203,93,13,,,0,MARSEILLE 3E,Marseille 3e,Marseille 3e,,13055
+COM,31555,76,31,,,0,TOULOUSE,Toulouse,Toulouse,,
+COM,33063,75,33,,,0,BORDEAUX,Bordeaux,Bordeaux,,
+COM,35238,53,35,,,0,RENNES,Rennes,Rennes,,
+COM,44109,52,44,,,0,NANTES,Nantes,Nantes,,
+COM,59350,32,59,,,0,LILLE,Lille,Lille,,
+COM,67482,44,67,,,0,STRASBOURG,Strasbourg,Strasbourg,,
+COM,69123,84,69,,,0,LYON,Lyon,Lyon,,
+COM,75056,11,75,,,0,PARIS,Paris,Paris,,
+ARM,75101,11,75,,,0,PARIS 1ER,Paris 1er,Paris 1er,,75056
+ARM,75102,11,75,,,0,PARIS 2E,Paris 2e,Paris 2e,,75056
+ARM,75103,11,75,,,0,PARIS 3E,Paris 3e,Paris 3e,,75056
+ARM,75104,11,75,,,0,PARIS 4E,Paris 4e,Paris 4e,,75056
+ARM,75105,11,75,,,0,PARIS 5E,Paris 5e,Paris 5e,,75056
+ARM,75106,11,75,,,0,PARIS 6E,Paris 6e,Paris 6e,,75056
+ARM,75107,11,75,,,0,PARIS 7E,Paris 7e,Paris 7e,,75056
+ARM,75108,11,75,,,0,PARIS 8E,Paris 8e,Paris 8e,,75056
+COM,76540,28,76,,,0,ROUEN,Rouen,Rouen,,
+COM,92050,11,92,,,0,NANTERRE,Nanterre,Nanterre,,
+COM,93008,11,93,,,0,BOBIGNY,Bobigny,Bobigny,,

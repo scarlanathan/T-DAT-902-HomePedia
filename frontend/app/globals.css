@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #eef2f8;
+  --foreground: #152033;
+  --mesh-1: rgba(59, 108, 244, 0.09);
+  --mesh-2: rgba(14, 165, 233, 0.07);
+  --mesh-3: rgba(139, 92, 246, 0.06);
+  --scrollbar-thumb: #d4dce8;
+}
+
+.dark {
+  --background: #070b12;
+  --foreground: #e9eef5;
+  --mesh-1: rgba(59, 108, 244, 0.14);
+  --mesh-2: rgba(14, 165, 233, 0.1);
+  --mesh-3: rgba(139, 92, 246, 0.08);
+  --scrollbar-thumb: #3d4f6f;
+}
+
+body {
+  color: var(--foreground);
+  background:
+    radial-gradient(ellipse 80% 50% at 10% -10%, var(--mesh-1), transparent 55%),
+    radial-gradient(ellipse 60% 45% at 90% 0%, var(--mesh-2), transparent 50%),
+    radial-gradient(ellipse 50% 40% at 50% 100%, var(--mesh-3), transparent 55%),
+    var(--background);
+  min-height: 100vh;
+}
+
+.maplibregl-ctrl-attrib {
+  font-size: 10px;
+}
+
+@layer components {
+  .hp-panel {
+    @apply rounded-2xl border border-white/70 bg-white/80 shadow-card ring-1 ring-ink-200/60 backdrop-blur-sm;
+    @apply dark:border-ink-700/70 dark:bg-ink-900/90 dark:ring-ink-700/50;
+  }
+
+  .hp-card {
+    @apply rounded-2xl border border-white/60 bg-white/80 shadow-card ring-1 backdrop-blur-sm transition duration-300 hover:shadow-elevated;
+    @apply dark:border-ink-700/60 dark:bg-ink-900/80 dark:hover:shadow-elevated;
+  }
+
+  .hp-card-sm {
+    @apply rounded-xl border border-white/60 bg-white/80 shadow-card ring-1 backdrop-blur-sm transition duration-300 hover:shadow-elevated;
+    @apply dark:border-ink-700/60 dark:bg-ink-900/80;
+  }
+
+  .hp-input {
+    @apply w-full rounded-xl border border-ink-200/90 bg-white/95 px-4 py-3 text-base text-ink-900 shadow-sm transition placeholder:text-ink-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/25;
+    @apply dark:border-ink-600/90 dark:bg-ink-800/90 dark:text-ink-50 dark:placeholder:text-ink-400 dark:focus:border-brand-500 dark:focus:ring-brand-500/30;
+  }
+
+  .hp-label {
+    @apply text-sm font-semibold uppercase tracking-wide text-ink-600 sm:text-base dark:text-ink-300;
+  }
+
+  .hp-map-shell {
+    @apply overflow-hidden rounded-2xl border border-white/70 shadow-card ring-1 ring-ink-200/60;
+    @apply dark:border-ink-700/70 dark:ring-ink-700/50;
+  }
+
+  .hp-map-overlay {
+    @apply pointer-events-none absolute bottom-4 left-4 max-w-[min(100%,30rem)] rounded-xl border border-white/60 bg-white/90 px-3.5 py-2.5 text-xs leading-relaxed text-ink-600 shadow-elevated backdrop-blur-md;
+    @apply dark:border-ink-600/70 dark:bg-ink-900/90 dark:text-ink-300;
+  }
+
+  .hp-page-shell {
+    @apply mx-auto w-full max-w-[96rem];
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
+}

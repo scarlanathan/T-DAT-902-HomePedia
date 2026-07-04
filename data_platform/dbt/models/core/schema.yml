@@ -1,0 +1,78 @@
+version: 2
+
+models:
+  - name: normalized_dvf_transaction
+    description: DVF rows with a valid INSEE commune code; grain = one geo-DVF CSV line.
+    columns:
+      - name: normalized_sale_line_id
+        tests:
+          - not_null
+          - unique
+
+  - name: normalized_cog_commune
+    description: Latest COG row per commune code.
+    columns:
+      - name: normalized_commune_id
+        tests:
+          - not_null
+          - unique
+      - name: code_commune
+        tests:
+          - not_null
+          - unique
+
+  - name: normalized_cog_departement
+    description: Latest COG row per département code.
+    columns:
+      - name: normalized_departement_id
+        tests:
+          - not_null
+          - unique
+      - name: code_departement
+        tests:
+          - not_null
+          - unique
+
+  - name: normalized_cog_region
+    description: Latest COG row per région code.
+    columns:
+      - name: normalized_region_id
+        tests:
+          - not_null
+          - unique
+      - name: code_region
+        tests:
+          - not_null
+          - unique
+
+  - name: normalized_bpe_equipement
+    description: BPE équipements with valid commune and type codes.
+    columns:
+      - name: normalized_equipment_id
+        tests:
+          - not_null
+          - unique
+
+  - name: normalized_filosofi_commune
+    description: Latest FiLoSoFi row per commune.
+    columns:
+      - name: normalized_social_indicator_id
+        tests:
+          - not_null
+          - unique
+      - name: code_commune
+        tests:
+          - not_null
+          - unique
+
+  - name: normalized_filosofi_iris
+    description: Latest FiLoSoFi row per IRIS.
+    columns:
+      - name: normalized_iris_indicator_id
+        tests:
+          - not_null
+          - unique
+      - name: code_iris
+        tests:
+          - not_null
+          - unique

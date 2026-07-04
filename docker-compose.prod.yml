@@ -1,0 +1,65 @@
+# Production stack: Postgres/PostGIS + NestJS API + Next.js frontend.
+#
+#   docker compose -f docker-compose.prod.yml up -d --build
+#
+# Then load the data once (see docs/deploiement_fr.md):
+#   the warehouse is empty until data_platform loaders + dbt have run against it.
+#
+# Override secrets/URLs via a .env file next to this compose or the shell:
+#   JWT_SECRET, POSTGRES_PASSWORD, NEXT_PUBLIC_API_URL, CORS_ORIGIN
+
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: homepedia-postgres-prod
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-homepedia}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-homepedia}
+      POSTGRES_DB: ${POSTGRES_DB:-homepedia}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./data_platform/sql/init_postgres.sql:/docker-entrypoint-initdb.d/01_init_postgis.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-homepedia} -d ${POSTGRES_DB:-homepedia}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+    container_name: homepedia-backend-prod
+    environment:
+      PORT: 3001
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-homepedia}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-homepedia}
+      POSTGRES_DB: ${POSTGRES_DB:-homepedia}
+      POSTGRES_SSL: "false"
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-prod}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
+    container_name: homepedia-frontend-prod
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

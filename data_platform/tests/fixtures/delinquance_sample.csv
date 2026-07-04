@@ -1,0 +1,9 @@
+"CODGEO_2025";"annee";"indicateur";"unite_de_compte";"nombre";"taux_pour_mille";"est_diffuse";"insee_pop";"insee_pop_millesime";"insee_log";"insee_log_millesime";"complement_info_nombre";"complement_info_taux"
+"01001";"2016";"Violences physiques intrafamiliales";"Victime";"0";"0,0000000";"diff";"767";"2016";"348";"2016";NA;NA
+"01001";"2016";"Violences physiques hors cadre familial";"Victime";NA;NA;"ndiff";"767";"2016";"348";"2016";"1,3620690";"0,9598386"
+"01001";"2016";"Violences sexuelles";"Victime";"0";"0,0000000";"diff";"767";"2016";"348";"2016";NA;NA
+"01001";"2016";"Vols avec armes";"Infraction";"0";"0,0000000";"diff";"767";"2016";"348";"2016";NA;NA
+"01001";"2016";"Vols violents sans arme";"Infraction";"0";"0,0000000";"diff";"767";"2016";"348";"2016";NA;NA
+"01001";"2016";"Vols sans violence contre des personnes";"Victime entendue";NA;NA;"ndiff";"767";"2016";"348";"2016";"2,0273973";"2,2174361"
+"01001";"2016";"Cambriolages de logement";"Infraction";NA;NA;"ndiff";"767";"2016";"348";"2016";"2,7745455";"6,6964780"
+"01001";"2016";"Vols de véhicule";"Véhicule";NA;NA;"ndiff";"767";"2016";"348";"2016";"1,9781022";"1,6551488"

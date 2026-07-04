@@ -1,0 +1,5 @@
+# Raw downloaded source files — re-fetchable, do not commit.
+# Keep the manifest and this ignore file only.
+*
+!.gitignore
+!SOURCES.md

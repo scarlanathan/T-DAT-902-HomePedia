@@ -1,0 +1,21 @@
+homepedia:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('POSTGRES_HOST', 'localhost') }}"
+      port: "{{ env_var('POSTGRES_PORT', '5432') | int }}"
+      user: "{{ env_var('POSTGRES_USER', 'homepedia') }}"
+      password: "{{ env_var('POSTGRES_PASSWORD', 'homepedia') }}"
+      dbname: "{{ env_var('POSTGRES_DEV_DB', 'homepedia') }}"
+      schema: "{{ env_var('POSTGRES_SCHEMA', 'public') }}"
+      threads: 4
+    test:
+      type: postgres
+      host: "{{ env_var('POSTGRES_HOST', 'localhost') }}"
+      port: "{{ env_var('POSTGRES_PORT', '5432') | int }}"
+      user: "{{ env_var('POSTGRES_USER', 'homepedia') }}"
+      password: "{{ env_var('POSTGRES_PASSWORD', 'homepedia') }}"
+      dbname: "{{ env_var('POSTGRES_TEST_DB', 'homepedia_test') }}"
+      schema: "{{ env_var('POSTGRES_SCHEMA', 'public') }}"
+      threads: 4

@@ -1,0 +1,1079 @@
+openapi: 3.0.0
+paths:
+  /:
+    get:
+      operationId: AppController_getRoot
+      parameters: []
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  status:
+                    type: string
+                required:
+                  - name
+                  - status
+      tags:
+        - meta
+  /health:
+    get:
+      operationId: HealthController_getHealth
+      parameters: []
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                      - ok
+                      - degraded
+                  postgres:
+                    type: string
+                    enum:
+                      - up
+                      - down
+                required:
+                  - status
+                  - postgres
+      tags:
+        - health
+  /locations/regions:
+    get:
+      operationId: LocationsController_listRegions
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    region_id:
+                      type: string
+                    code_region:
+                      type: string
+                    nom_region:
+                      type: string
+                      nullable: true
+                    code_commune_cheflieu:
+                      type: string
+                      nullable: true
+                    cog_millesime:
+                      type: integer
+                      nullable: true
+                  required:
+                    - region_id
+                    - code_region
+      tags: &a1
+        - locations
+  /locations/regions/{codeRegion}:
+    get:
+      operationId: LocationsController_getRegion
+      parameters:
+        - name: codeRegion
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  region_id:
+                    type: string
+                  code_region:
+                    type: string
+                  nom_region:
+                    type: string
+                    nullable: true
+                  code_commune_cheflieu:
+                    type: string
+                    nullable: true
+                  cog_millesime:
+                    type: integer
+                    nullable: true
+                required:
+                  - region_id
+                  - code_region
+        "404":
+          description: Unknown region code
+      tags: *a1
+  /locations/departments:
+    get:
+      operationId: LocationsController_listDepartments
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          schema:
+            type: integer
+            default: 200
+        - name: code_region
+          required: false
+          in: query
+          schema: {}
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    departement_id:
+                      type: string
+                    code_departement:
+                      type: string
+                    nom_departement:
+                      type: string
+                      nullable: true
+                    code_region:
+                      type: string
+                      nullable: true
+                    code_commune_cheflieu:
+                      type: string
+                      nullable: true
+                    cog_millesime:
+                      type: integer
+                      nullable: true
+                  required:
+                    - departement_id
+                    - code_departement
+      tags: *a1
+  /locations/departments/{codeDepartement}/communes:
+    get:
+      operationId: LocationsController_communesByDepartement
+      parameters:
+        - name: codeDepartement
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: offset
+          required: false
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          required: false
+          in: query
+          schema:
+            type: integer
+            default: 500
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    location_id:
+                      type: string
+                    code_commune:
+                      type: string
+                    nom_commune:
+                      type: string
+                      nullable: true
+                    code_departement:
+                      type: string
+                      nullable: true
+                    code_region:
+                      type: string
+                      nullable: true
+                    type_commune:
+                      type: string
+                      nullable: true
+                    code_commune_parent:
+                      type: string
+                      nullable: true
+                    cog_millesime:
+                      type: integer
+                      nullable: true
+                  required:
+                    - location_id
+                    - code_commune
+      tags: *a1
+  /locations/departments/{codeDepartement}:
+    get:
+      operationId: LocationsController_getDepartment
+      parameters:
+        - name: codeDepartement
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  departement_id:
+                    type: string
+                  code_departement:
+                    type: string
+                  nom_departement:
+                    type: string
+                    nullable: true
+                  code_region:
+                    type: string
+                    nullable: true
+                  code_commune_cheflieu:
+                    type: string
+                    nullable: true
+                  cog_millesime:
+                    type: integer
+                    nullable: true
+                required:
+                  - departement_id
+                  - code_departement
+        "404":
+          description: Unknown department code
+      tags: *a1
+  /locations:
+    get:
+      operationId: LocationsController_search
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: q
+          required: false
+          in: query
+          description: Search by commune name or INSEE code prefix.
+          schema: {}
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    location_id:
+                      type: string
+                    code_commune:
+                      type: string
+                    nom_commune:
+                      type: string
+                      nullable: true
+                    code_departement:
+                      type: string
+                      nullable: true
+                    code_region:
+                      type: string
+                      nullable: true
+                    type_commune:
+                      type: string
+                      nullable: true
+                    code_commune_parent:
+                      type: string
+                      nullable: true
+                    cog_millesime:
+                      type: integer
+                      nullable: true
+                  required:
+                    - location_id
+                    - code_commune
+      tags: *a1
+  /locations/{codeCommune}:
+    get:
+      operationId: LocationsController_getByCodeCommune
+      parameters:
+        - name: codeCommune
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  location_id:
+                    type: string
+                  code_commune:
+                    type: string
+                  nom_commune:
+                    type: string
+                    nullable: true
+                  code_departement:
+                    type: string
+                    nullable: true
+                  code_region:
+                    type: string
+                    nullable: true
+                  type_commune:
+                    type: string
+                    nullable: true
+                  code_commune_parent:
+                    type: string
+                    nullable: true
+                  cog_millesime:
+                    type: integer
+                    nullable: true
+                required:
+                  - location_id
+                  - code_commune
+        "404":
+          description: Unknown commune code
+      tags: *a1
+  /transactions/{transactionId}:
+    get:
+      operationId: TransactionsController_getById
+      parameters:
+        - name: transactionId
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: include_location
+          required: false
+          in: query
+          schema:
+            type: boolean
+            default: true
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transaction_id:
+                    type: string
+                  location_id:
+                    type: string
+                  date_mutation:
+                    type: string
+                    nullable: true
+                    format: date-time
+                  nature_mutation:
+                    type: string
+                    nullable: true
+                  valeur_fonciere:
+                    type: string
+                    nullable: true
+                  surface_reelle_bati:
+                    type: string
+                    nullable: true
+                  price_per_sqm_built:
+                    type: string
+                    nullable: true
+                  type_local:
+                    type: string
+                    nullable: true
+                  code_type_local:
+                    type: string
+                    nullable: true
+                  id_parcelle:
+                    type: string
+                    nullable: true
+                  code_postal:
+                    type: string
+                    nullable: true
+                  longitude:
+                    type: number
+                    nullable: true
+                  latitude:
+                    type: number
+                    nullable: true
+                  source_file:
+                    type: string
+                    nullable: true
+                  ingested_at:
+                    type: string
+                    format: date-time
+                  code_commune:
+                    type: string
+                  nom_commune:
+                    type: string
+                    nullable: true
+                required:
+                  - transaction_id
+                  - location_id
+                  - ingested_at
+        "404":
+          description: Unknown transaction_id
+      tags: &a2
+        - transactions
+  /transactions:
+    get:
+      operationId: TransactionsController_list
+      parameters:
+        - name: include_location
+          required: false
+          in: query
+          schema:
+            type: boolean
+            default: true
+        - name: offset
+          required: false
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          required: false
+          in: query
+          schema:
+            type: integer
+            default: 200
+        - name: to
+          required: false
+          in: query
+          description: YYYY-MM-DD (inclusive)
+          schema: {}
+        - name: from
+          required: false
+          in: query
+          description: YYYY-MM-DD (inclusive)
+          schema: {}
+        - name: type_local
+          required: false
+          in: query
+          schema: {}
+        - name: nature_mutation
+          required: false
+          in: query
+          schema: {}
+        - name: code_commune
+          required: false
+          in: query
+          schema: {}
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    transaction_id:
+                      type: string
+                    location_id:
+                      type: string
+                    date_mutation:
+                      type: string
+                      nullable: true
+                      format: date-time
+                    nature_mutation:
+                      type: string
+                      nullable: true
+                    valeur_fonciere:
+                      type: string
+                      nullable: true
+                    surface_reelle_bati:
+                      type: string
+                      nullable: true
+                    price_per_sqm_built:
+                      type: string
+                      nullable: true
+                    type_local:
+                      type: string
+                      nullable: true
+                    code_type_local:
+                      type: string
+                      nullable: true
+                    id_parcelle:
+                      type: string
+                      nullable: true
+                    code_postal:
+                      type: string
+                      nullable: true
+                    longitude:
+                      type: number
+                      nullable: true
+                    latitude:
+                      type: number
+                      nullable: true
+                    source_file:
+                      type: string
+                      nullable: true
+                    ingested_at:
+                      type: string
+                      format: date-time
+                    code_commune:
+                      type: string
+                    nom_commune:
+                      type: string
+                      nullable: true
+                  required:
+                    - transaction_id
+                    - location_id
+                    - ingested_at
+      tags: *a2
+  /stats/transaction-summary:
+    get:
+      operationId: StatsController_transactionSummary
+      parameters:
+        - name: to
+          required: false
+          in: query
+          description: YYYY-MM-DD (inclusive)
+          schema: {}
+        - name: from
+          required: false
+          in: query
+          description: YYYY-MM-DD (inclusive)
+          schema: {}
+        - name: type_local
+          required: false
+          in: query
+          schema: {}
+        - name: nature_mutation
+          required: false
+          in: query
+          schema: {}
+        - name: code_departement
+          required: false
+          in: query
+          schema: {}
+        - name: code_commune
+          required: false
+          in: query
+          schema: {}
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transaction_count:
+                    type: string
+                  min_date_mutation:
+                    type: string
+                    nullable: true
+                    format: date-time
+                  max_date_mutation:
+                    type: string
+                    nullable: true
+                    format: date-time
+                  median_valeur_fonciere:
+                    nullable: true
+                  median_price_per_sqm_built:
+                    nullable: true
+                required:
+                  - transaction_count
+      tags: &a3
+        - stats
+  /stats/city-housing-summary:
+    get:
+      operationId: StatsController_cityHousingSummary
+      parameters:
+        - name: offset
+          required: false
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          required: false
+          in: query
+          schema:
+            type: integer
+            default: 500
+        - name: to
+          required: false
+          in: query
+          description: YYYY-MM-DD (inclusive)
+          schema: {}
+        - name: from
+          required: false
+          in: query
+          description: YYYY-MM-DD (inclusive)
+          schema: {}
+        - name: code_commune
+          required: false
+          in: query
+          schema: {}
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    code_commune:
+                      type: string
+                    nom_commune:
+                      type: string
+                      nullable: true
+                    period_month:
+                      type: string
+                      format: date-time
+                    sale_line_count:
+                      type: string
+                    median_valeur_fonciere:
+                      nullable: true
+                    median_price_per_sqm_built:
+                      nullable: true
+                  required:
+                    - code_commune
+                    - period_month
+                    - sale_line_count
+      tags: *a3
+  /stats/city-equipment-summary:
+    get:
+      operationId: StatsController_cityEquipmentSummary
+      parameters:
+        - name: offset
+          required: false
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          required: false
+          in: query
+          schema:
+            type: integer
+            default: 500
+        - name: code_commune
+          required: false
+          in: query
+          schema: {}
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    code_commune:
+                      type: string
+                    nom_commune:
+                      type: string
+                      nullable: true
+                    bpe_millesime:
+                      type: integer
+                      nullable: true
+                    equipment_total_count:
+                      type: string
+                    education_count:
+                      type: string
+                    health_count:
+                      type: string
+                    commerce_count:
+                      type: string
+                    sport_count:
+                      type: string
+                    other_count:
+                      type: string
+                  required:
+                    - code_commune
+                    - equipment_total_count
+      tags: *a3
+  /stats/city-social-summary:
+    get:
+      operationId: StatsController_citySocialSummary
+      parameters:
+        - name: offset
+          required: false
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          required: false
+          in: query
+          schema:
+            type: integer
+            default: 500
+        - name: code_commune
+          required: false
+          in: query
+          schema: {}
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    code_commune:
+                      type: string
+                    nom_commune:
+                      type: string
+                      nullable: true
+                    filosofi_millesime:
+                      type: integer
+                      nullable: true
+                    median_income_eur:
+                      nullable: true
+                    poverty_rate:
+                      nullable: true
+                    inequality_ratio:
+                      nullable: true
+                    caf_beneficiary_share:
+                      nullable: true
+                    housing_aid_share:
+                      nullable: true
+                    income_d1_eur:
+                      nullable: true
+                    income_d9_eur:
+                      nullable: true
+                  required:
+                    - code_commune
+      tags: *a3
+  /stats/iris-social-summary:
+    get:
+      operationId: StatsController_irisSocialSummary
+      parameters:
+        - name: offset
+          required: false
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          required: false
+          in: query
+          schema:
+            type: integer
+            default: 500
+        - name: code_iris
+          required: false
+          in: query
+          schema: {}
+        - name: code_commune
+          required: false
+          in: query
+          schema: {}
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    code_iris:
+                      type: string
+                    code_commune:
+                      type: string
+                    nom_commune:
+                      type: string
+                      nullable: true
+                    nom_iris:
+                      type: string
+                      nullable: true
+                    filosofi_millesime:
+                      type: integer
+                      nullable: true
+                    median_income_eur:
+                      nullable: true
+                    poverty_rate:
+                      nullable: true
+                    inequality_ratio:
+                      nullable: true
+                    caf_beneficiary_share:
+                      nullable: true
+                  required:
+                    - code_iris
+                    - code_commune
+      tags: *a3
+  /stats/opportunity-score:
+    get:
+      operationId: StatsController_opportunityScore
+      parameters:
+        - name: offset
+          required: false
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          required: false
+          in: query
+          schema:
+            type: integer
+            default: 500
+        - name: to
+          required: false
+          in: query
+          description: YYYY-MM-DD (inclusive)
+          schema: {}
+        - name: from
+          required: false
+          in: query
+          description: YYYY-MM-DD (inclusive)
+          schema: {}
+        - name: code_commune
+          required: false
+          in: query
+          schema: {}
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    code_commune:
+                      type: string
+                    nom_commune:
+                      type: string
+                      nullable: true
+                    period_month:
+                      type: string
+                      format: date-time
+                    sale_line_count:
+                      type: string
+                    median_valeur_fonciere:
+                      nullable: true
+                    price_median_per_sqm:
+                      nullable: true
+                    median_income_eur:
+                      nullable: true
+                    poverty_rate:
+                      nullable: true
+                    qpv_share:
+                      nullable: true
+                    equipment_density:
+                      nullable: true
+                    transit_accessibility:
+                      nullable: true
+                    safety_index:
+                      nullable: true
+                    assumed_interest_rate:
+                      nullable: true
+                    assumed_term_months:
+                      type: integer
+                      nullable: true
+                    assumed_max_dti:
+                      nullable: true
+                    borrowing_capacity_eur:
+                      nullable: true
+                    price_to_capacity_ratio:
+                      nullable: true
+                    price_score:
+                      nullable: true
+                    social_mix_score:
+                      nullable: true
+                    quality_of_life_score:
+                      nullable: true
+                    composite_score:
+                      nullable: true
+                  required:
+                    - code_commune
+                    - period_month
+                    - sale_line_count
+      tags: *a3
+  /equipment:
+    get:
+      operationId: EquipmentController_list
+      parameters:
+        - name: include_location
+          required: false
+          in: query
+          schema:
+            type: boolean
+            default: true
+        - name: offset
+          required: false
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          required: false
+          in: query
+          schema:
+            type: integer
+            default: 200
+        - name: equipment_category
+          required: false
+          in: query
+          description: education | health | commerce | sport | other
+          schema: {}
+        - name: code_departement
+          required: false
+          in: query
+          schema: {}
+        - name: code_commune
+          required: false
+          in: query
+          schema: {}
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    equipment_id:
+                      type: string
+                    location_id:
+                      type: string
+                    code_commune:
+                      type: string
+                    code_iris:
+                      type: string
+                      nullable: true
+                    millesime:
+                      type: integer
+                      nullable: true
+                    typequ:
+                      type: string
+                      nullable: true
+                    equipment_category:
+                      type: string
+                      nullable: true
+                    lambert_x:
+                      nullable: true
+                    lambert_y:
+                      nullable: true
+                    qualite_xy:
+                      type: string
+                      nullable: true
+                    source_file:
+                      type: string
+                      nullable: true
+                    ingested_at:
+                      type: string
+                      format: date-time
+                    nom_commune:
+                      type: string
+                      nullable: true
+                  required:
+                    - equipment_id
+                    - location_id
+                    - code_commune
+                    - ingested_at
+      tags:
+        - equipment
+  /map/transactions:
+    get:
+      operationId: MapController_transactions
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          schema:
+            type: integer
+            default: 2000
+        - name: to
+          required: false
+          in: query
+          description: YYYY-MM-DD (inclusive)
+          schema: {}
+        - name: from
+          required: false
+          in: query
+          description: YYYY-MM-DD (inclusive)
+          schema: {}
+        - name: bbox
+          required: true
+          in: query
+          description: Bounding box as "minLon,minLat,maxLon,maxLat".
+          schema: {}
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    transaction_id:
+                      type: string
+                    date_mutation:
+                      type: string
+                      nullable: true
+                      format: date-time
+                    valeur_fonciere:
+                      type: string
+                      nullable: true
+                    price_per_sqm_built:
+                      type: string
+                      nullable: true
+                    type_local:
+                      type: string
+                      nullable: true
+                    longitude:
+                      type: number
+                    latitude:
+                      type: number
+                    code_commune:
+                      type: string
+                      nullable: true
+                  required:
+                    - transaction_id
+                    - longitude
+                    - latitude
+      tags:
+        - map
+info:
+  title: Homepedia API
+  description: API on top of dbt marts from data_platform.
+  version: 1.0.0
+  contact: {}
+tags: []
+servers: []
+components:
+  schemas: {}
