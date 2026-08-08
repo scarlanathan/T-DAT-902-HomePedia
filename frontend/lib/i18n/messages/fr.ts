@@ -25,6 +25,7 @@ export const fr: Messages = {
     userMenu: "Menu du compte",
     language: "Langue",
     appearance: "Apparence",
+    preferences: "Mes préférences",
     lightMode: "Mode clair",
     darkMode: "Mode sombre",
   },

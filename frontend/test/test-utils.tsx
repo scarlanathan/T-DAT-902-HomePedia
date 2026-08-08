@@ -5,6 +5,7 @@ import type { AuthUser } from "@/api";
 import * as api from "@/api";
 import { AuthProvider } from "@/lib/auth-context";
 import { LocaleProvider } from "@/lib/locale-context";
+import { PreferencesModalProvider } from "@/lib/preferences-modal-context";
 import { ThemeProvider } from "@/lib/theme-context";
 
 type AuthOpts = {
@@ -31,7 +32,9 @@ function AllProviders({ children }: { children: React.ReactNode }) {
   return (
     <LocaleProvider>
       <ThemeProvider>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <PreferencesModalProvider>{children}</PreferencesModalProvider>
+        </AuthProvider>
       </ThemeProvider>
     </LocaleProvider>
   );

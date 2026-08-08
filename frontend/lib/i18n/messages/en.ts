@@ -23,6 +23,7 @@ export const en = {
     userMenu: "Account menu",
     language: "Language",
     appearance: "Appearance",
+    preferences: "My preferences",
     lightMode: "Light mode",
     darkMode: "Dark mode",
   },

@@ -6,6 +6,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAnchoredPopover } from "@/components/ui/useAnchoredPopover";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
+import { usePreferencesModal } from "@/lib/preferences-modal-context";
 
 const PANEL_WIDTH = 260;
 
@@ -27,6 +28,7 @@ function IconChevron({ open }: { open: boolean }) {
 export function UserMenu() {
   const { user, logout } = useAuth();
   const { t } = useLocale();
+  const { openPreferences } = usePreferencesModal();
   const { open, position, panelId, buttonRef, panelRef, toggle, setOpen } =
     useAnchoredPopover(PANEL_WIDTH);
 
@@ -61,6 +63,20 @@ export function UserMenu() {
               {t("header.appearance")}
             </p>
             <ThemeToggle className="w-full" />
+          </div>
+
+          <div className="border-t border-ink-100 px-2 py-2 dark:border-ink-800">
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setOpen(false);
+                openPreferences();
+              }}
+              className="flex w-full items-center justify-center rounded-lg px-2.5 py-2 text-center text-sm font-medium text-ink-700 transition hover:bg-ink-50 dark:text-ink-100 dark:hover:bg-ink-800"
+            >
+              {t("header.preferences")}
+            </button>
           </div>
 
           <div className="border-t border-ink-100 px-2 py-2 dark:border-ink-800">

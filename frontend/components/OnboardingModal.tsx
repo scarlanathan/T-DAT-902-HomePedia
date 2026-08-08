@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "@/lib/locale-context";
+import { usePreferencesModal } from "@/lib/preferences-modal-context";
 import { DEFAULT_PREFERENCES, normaliseWeights } from "@/lib/preferences";
 import type { SearchPreferences } from "@/api";
 
@@ -22,7 +23,8 @@ function toNum(v: string): number | null {
 export function OnboardingModal() {
   const { user, savePreferences } = useAuth();
   const { t } = useLocale();
-  const [manualOpen, setManualOpen] = useState(false);
+  const { open: manualOpen, openPreferences, closePreferences } =
+    usePreferencesModal();
   const [dismissed, setDismissed] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -58,14 +60,14 @@ export function OnboardingModal() {
     };
     await savePreferences(prefs);
     setSaving(false);
-    setManualOpen(false);
+    closePreferences();
   };
 
   if (!open) {
     return (
       <button
         type="button"
-        onClick={() => setManualOpen(true)}
+        onClick={openPreferences}
         className="fixed bottom-5 left-5 z-40 rounded-full bg-white px-4 py-2 text-sm font-semibold text-brand-700 shadow-elevated ring-1 ring-brand-500/25 transition hover:bg-brand-50 dark:bg-ink-900 dark:text-brand-300 dark:ring-brand-400/30 dark:hover:bg-ink-800"
       >
         ⚙︎ {t("onboarding.editButton")}
@@ -149,7 +151,7 @@ export function OnboardingModal() {
         <div className="mt-6 flex items-center justify-end gap-2">
           <button
             type="button"
-            onClick={() => (manualOpen ? setManualOpen(false) : setDismissed(true))}
+            onClick={() => (manualOpen ? closePreferences() : setDismissed(true))}
             className="rounded-lg px-3 py-2 text-sm font-medium text-ink-500 transition hover:text-ink-800 dark:hover:text-ink-200"
           >
             {t("onboarding.skip")}

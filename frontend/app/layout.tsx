@@ -3,6 +3,7 @@ import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import { Header } from "@/components/Header";
 import { UserSettingsSync } from "@/components/UserSettingsSync";
 import { AuthProvider } from "@/lib/auth-context";
+import { PreferencesModalProvider } from "@/lib/preferences-modal-context";
 import { THEME_STORAGE_KEY, ThemeProvider } from "@/lib/theme-context";
 import { LOCALE_STORAGE_KEY, LocaleProvider } from "@/lib/locale-context";
 import "./globals.css";
@@ -45,9 +46,11 @@ export default function RootLayout({
         <LocaleProvider>
           <ThemeProvider>
             <AuthProvider>
-              <UserSettingsSync />
-              <Header />
-              {children}
+              <PreferencesModalProvider>
+                <UserSettingsSync />
+                <Header />
+                {children}
+              </PreferencesModalProvider>
             </AuthProvider>
           </ThemeProvider>
         </LocaleProvider>
