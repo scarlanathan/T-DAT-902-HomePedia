@@ -29,6 +29,11 @@ const STEPS: Step[] = [
   { selector: '[data-tour="themes"]', titleKey: "tour.themesTitle", bodyKey: "tour.themesBody" },
   { selector: '[data-tour="map"]', titleKey: "tour.mapTitle", bodyKey: "tour.mapBody" },
   { selector: '[data-tour="ranking"]', titleKey: "tour.rankingTitle", bodyKey: "tour.rankingBody" },
+  {
+    selector: '[data-tour="predictions"]',
+    titleKey: "tour.predictionsTitle",
+    bodyKey: "tour.predictionsBody",
+  },
 ];
 
 function clearHighlights(): void {

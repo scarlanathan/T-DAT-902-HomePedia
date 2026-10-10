@@ -9,8 +9,9 @@ if [[ ! -d "$DATA_PLATFORM_ROOT/.venv" ]]; then
   python3 -m venv "$DATA_PLATFORM_ROOT/.venv"
 fi
 homepedia_activate_venv
-pip install -U pip
+python -m pip install -U pip
 pip install -r "$DATA_PLATFORM_ROOT/requirements.txt"
 pip install -r "$DATA_PLATFORM_ROOT/requirements-dev.txt"
 pip install -r "$DATA_PLATFORM_ROOT/requirements-dbt.txt"
+pip install -r "$DATA_PLATFORM_ROOT/requirements-ml.txt"
 echo "venv ready at $DATA_PLATFORM_ROOT/.venv"

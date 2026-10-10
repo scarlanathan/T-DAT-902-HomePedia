@@ -43,6 +43,8 @@ type Props = {
   icon?: ReactNode;
   loading?: boolean;
   highlight?: boolean;
+  /** Extra classes for the value (e.g. a positive/negative color). */
+  valueClassName?: string;
 };
 
 export function MetricCard({
@@ -53,6 +55,7 @@ export function MetricCard({
   icon,
   loading,
   highlight,
+  valueClassName = "",
 }: Props) {
   const styles = toneStyles[tone];
 
@@ -77,7 +80,9 @@ export function MetricCard({
             {label}
           </p>
           <p
-            className={`mt-2 font-bold tabular-nums tracking-tight text-ink-900 dark:text-ink-50 ${
+            className={`mt-2 font-bold tabular-nums tracking-tight ${
+              valueClassName || "text-ink-900 dark:text-ink-50"
+            } ${
               highlight ? "text-4xl sm:text-5xl" : "text-3xl sm:text-4xl"
             } ${loading ? "animate-pulse text-ink-400" : ""}`}
           >

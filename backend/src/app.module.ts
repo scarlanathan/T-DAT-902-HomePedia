@@ -9,6 +9,7 @@ import { MapModule } from './modules/map/map.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { StatsModule } from './modules/stats/stats.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
+import { ForecastModule } from './modules/forecast/forecast.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { TransactionsModule } from './modules/transactions/transactions.module';
     LocationsModule,
     TransactionsModule,
     StatsModule,
+    ForecastModule,
     EquipmentModule,
     MapModule,
     AuthModule,

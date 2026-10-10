@@ -83,3 +83,20 @@ sources:
             description: Commune INSEE code (5 chars).
           - name: code_postal
             description: 5-digit postal code.
+
+  - name: forecast
+    schema: public
+    description: >
+      Tables written by the price forecast job (data_platform/forecast/forecast_prices.py),
+      trained on the app_price_history mart. Not managed by dbt (dbt run never drops them).
+    tables:
+      - name: app_price_forecast
+        description: Quarterly forecast path per series × scenario with 80 % interval.
+      - name: app_price_forecast_summary
+        description: One row per series × scenario (last price, 1-year / 2-year forecast, reliability).
+      - name: app_price_forecast_scenario
+        description: Mortgage-rate assumptions per scenario and quarter.
+      - name: app_price_forecast_backtest
+        description: Rolling-origin backtest (MAPE model vs naive, interval coverage) per level × horizon.
+      - name: app_price_forecast_model
+        description: Single-row metadata (training date, history range, elasticity, damping).

@@ -219,6 +219,9 @@ paths:
                     cog_millesime:
                       type: integer
                       nullable: true
+                    code_postal:
+                      type: string
+                      nullable: true
                   required:
                     - location_id
                     - code_commune
@@ -275,7 +278,7 @@ paths:
         - name: q
           required: false
           in: query
-          description: Search by commune name or INSEE code prefix.
+          description: Search by commune name, postal code, or INSEE code prefix.
           schema: {}
       responses:
         "200":
@@ -308,6 +311,9 @@ paths:
                       nullable: true
                     cog_millesime:
                       type: integer
+                      nullable: true
+                    code_postal:
+                      type: string
                       nullable: true
                   required:
                     - location_id
@@ -351,6 +357,9 @@ paths:
                     nullable: true
                   cog_millesime:
                     type: integer
+                    nullable: true
+                  code_postal:
+                    type: string
                     nullable: true
                 required:
                   - location_id
@@ -731,6 +740,21 @@ paths:
           schema:
             type: integer
             default: 500
+        - name: order
+          required: false
+          in: query
+          schema:
+            enum:
+              - asc
+              - desc
+            type: string
+        - name: sort_by
+          required: false
+          in: query
+          schema:
+            enum:
+              - median_income_eur
+            type: string
         - name: code_commune
           required: false
           in: query
@@ -769,6 +793,34 @@ paths:
                       nullable: true
                   required:
                     - code_commune
+      tags: *a3
+  /stats/city-social-summary/count:
+    get:
+      operationId: StatsController_citySocialSummaryCount
+      parameters:
+        - name: sort_by
+          required: false
+          in: query
+          schema:
+            enum:
+              - median_income_eur
+            type: string
+        - name: code_commune
+          required: false
+          in: query
+          schema: {}
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                required:
+                  - count
       tags: *a3
   /stats/iris-social-summary:
     get:
@@ -887,6 +939,8 @@ paths:
                       nullable: true
                     poverty_rate:
                       nullable: true
+                    csp_diversity_index:
+                      nullable: true
                     qpv_share:
                       nullable: true
                     equipment_density:
@@ -894,6 +948,8 @@ paths:
                     transit_accessibility:
                       nullable: true
                     safety_index:
+                      nullable: true
+                    property_tax_rate_pct:
                       nullable: true
                     assumed_interest_rate:
                       nullable: true
@@ -919,6 +975,604 @@ paths:
                     - period_month
                     - sale_line_count
       tags: *a3
+  /stats/commune-ranking/count:
+    get:
+      operationId: StatsController_communeRankingCount
+      parameters:
+        - name: metric
+          required: true
+          in: query
+          schema:
+            enum:
+              - median_income_eur
+              - composite_score
+              - social_mix_score
+              - quality_of_life_score
+              - price_median_per_sqm
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                required:
+                  - count
+      tags: *a3
+  /stats/commune-ranking:
+    get:
+      operationId: StatsController_communeRanking
+      parameters:
+        - name: offset
+          required: false
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          required: false
+          in: query
+          schema:
+            type: integer
+            default: 500
+        - name: order
+          required: false
+          in: query
+          schema:
+            enum:
+              - asc
+              - desc
+            type: string
+        - name: metric
+          required: true
+          in: query
+          schema:
+            enum:
+              - median_income_eur
+              - composite_score
+              - social_mix_score
+              - quality_of_life_score
+              - price_median_per_sqm
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    code_commune:
+                      type: string
+                    nom_commune:
+                      type: string
+                      nullable: true
+                    value:
+                      nullable: true
+                  required:
+                    - code_commune
+      tags: *a3
+  /forecast/model:
+    get:
+      operationId: ForecastController_model
+      parameters: []
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  model:
+                    type: object
+                    nullable: true
+                    properties:
+                      trained_at:
+                        type: string
+                        format: date-time
+                      history_start:
+                        type: string
+                        format: date
+                        nullable: true
+                      history_end:
+                        type: string
+                        format: date
+                        nullable: true
+                      horizon_quarters:
+                        type: integer
+                        nullable: true
+                      method:
+                        type: string
+                        nullable: true
+                      rate_elasticity:
+                        type: string
+                        nullable: true
+                      damping_phi:
+                        type: string
+                        nullable: true
+                      mean_reversion_kappa:
+                        type: string
+                        nullable: true
+                      last_rate_pct:
+                        type: string
+                        nullable: true
+                      last_rate_month:
+                        type: string
+                        format: date
+                        nullable: true
+                      n_series:
+                        type: object
+                        nullable: true
+                        additionalProperties:
+                          type: integer
+                  scenarios:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        scenario:
+                          type: string
+                        label:
+                          type: string
+                          nullable: true
+                        description:
+                          type: string
+                          nullable: true
+                        period_quarter:
+                          type: string
+                          format: date
+                        horizon:
+                          type: integer
+                        rate_pct:
+                          type: string
+                          nullable: true
+                        national_change_pct_year:
+                          type: string
+                          nullable: true
+                      required:
+                        - scenario
+                        - period_quarter
+                        - horizon
+                  backtest:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        level:
+                          type: string
+                        horizon:
+                          type: integer
+                        n_series:
+                          type: integer
+                          nullable: true
+                        mape_model:
+                          type: string
+                          nullable: true
+                        mape_naive:
+                          type: string
+                          nullable: true
+                        coverage_80:
+                          type: string
+                          nullable: true
+                      required:
+                        - level
+                        - horizon
+                required:
+                  - model
+                  - scenarios
+                  - backtest
+      tags: &a4
+        - forecast
+  /forecast/series:
+    get:
+      operationId: ForecastController_series
+      parameters:
+        - name: property_type
+          required: false
+          in: query
+          schema:
+            default: all
+            enum:
+              - all
+              - appartement
+              - maison
+            type: string
+        - name: code
+          required: false
+          in: query
+          description: INSEE code; optional for level=france (defaults to 'FR')
+          schema: {}
+        - name: level
+          required: true
+          in: query
+          schema:
+            enum:
+              - france
+              - region
+              - departement
+              - commune
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  level:
+                    type: string
+                    enum:
+                      - france
+                      - region
+                      - departement
+                      - commune
+                  code:
+                    type: string
+                  nom:
+                    type: string
+                    nullable: true
+                  property_type:
+                    type: string
+                    enum:
+                      - all
+                      - appartement
+                      - maison
+                  history:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        period_quarter:
+                          type: string
+                          format: date
+                        median_price_per_sqm:
+                          type: string
+                          nullable: true
+                        sale_count:
+                          type: string
+                          nullable: true
+                      required:
+                        - period_quarter
+                  forecast:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        scenario:
+                          type: string
+                        period_quarter:
+                          type: string
+                          format: date
+                        horizon:
+                          type: integer
+                        median_price_per_sqm:
+                          type: string
+                          nullable: true
+                        lower_80:
+                          type: string
+                          nullable: true
+                        upper_80:
+                          type: string
+                          nullable: true
+                      required:
+                        - scenario
+                        - period_quarter
+                        - horizon
+                  summary:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        level:
+                          type: string
+                        code:
+                          type: string
+                        nom:
+                          type: string
+                          nullable: true
+                        code_departement:
+                          type: string
+                          nullable: true
+                        property_type:
+                          type: string
+                        scenario:
+                          type: string
+                        last_quarter:
+                          type: string
+                          format: date
+                          nullable: true
+                        last_price:
+                          type: string
+                          nullable: true
+                        last_observed_price:
+                          type: string
+                          nullable: true
+                        annual_sales:
+                          type: string
+                          nullable: true
+                        trend_pct_year:
+                          type: string
+                          nullable: true
+                        price_h4:
+                          type: string
+                          nullable: true
+                        change_pct_h4:
+                          type: string
+                          nullable: true
+                        lower_80_h4:
+                          type: string
+                          nullable: true
+                        upper_80_h4:
+                          type: string
+                          nullable: true
+                        price_h8:
+                          type: string
+                          nullable: true
+                        change_pct_h8:
+                          type: string
+                          nullable: true
+                        lower_80_h8:
+                          type: string
+                          nullable: true
+                        upper_80_h8:
+                          type: string
+                          nullable: true
+                        reliability:
+                          type: string
+                          nullable: true
+                          enum:
+                            - elevee
+                            - moyenne
+                            - faible
+                        trained_at:
+                          type: string
+                          format: date-time
+                          nullable: true
+                      required:
+                        - level
+                        - code
+                        - property_type
+                        - scenario
+                  fallback:
+                    type: object
+                    nullable: true
+                    properties:
+                      level:
+                        type: string
+                        enum:
+                          - departement
+                      code:
+                        type: string
+                    required:
+                      - level
+                      - code
+                required:
+                  - level
+                  - code
+                  - nom
+                  - property_type
+                  - history
+                  - forecast
+                  - summary
+                  - fallback
+        "404":
+          description: Neither history nor forecast exist for this series
+      tags: *a4
+  /forecast/map:
+    get:
+      operationId: ForecastController_map
+      parameters:
+        - name: horizon
+          required: false
+          in: query
+          description: Quarters ahead (4 or 8)
+          schema:
+            type: number
+            default: 4
+            enum:
+              - 4
+              - 8
+        - name: property_type
+          required: false
+          in: query
+          schema:
+            default: all
+            enum:
+              - all
+              - appartement
+              - maison
+            type: string
+        - name: scenario
+          required: false
+          in: query
+          schema:
+            default: central
+            enum:
+              - central
+              - optimiste
+              - pessimiste
+            type: string
+        - name: level
+          required: true
+          in: query
+          schema:
+            enum:
+              - departement
+              - region
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    code:
+                      type: string
+                    nom:
+                      type: string
+                      nullable: true
+                    last_price:
+                      type: string
+                      nullable: true
+                    forecast_price:
+                      type: string
+                      nullable: true
+                    change_pct:
+                      type: string
+                      nullable: true
+                    lower_80:
+                      type: string
+                      nullable: true
+                    upper_80:
+                      type: string
+                      nullable: true
+                    annual_sales:
+                      type: string
+                      nullable: true
+                    reliability:
+                      type: string
+                      nullable: true
+                      enum:
+                        - elevee
+                        - moyenne
+                        - faible
+                  required:
+                    - code
+      tags: *a4
+  /forecast/ranking:
+    get:
+      operationId: ForecastController_ranking
+      parameters:
+        - name: offset
+          required: false
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          required: false
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: min_annual_sales
+          required: false
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: code_departement
+          required: false
+          in: query
+          schema: {}
+        - name: order
+          required: false
+          in: query
+          schema:
+            default: desc
+            enum:
+              - asc
+              - desc
+            type: string
+        - name: horizon
+          required: false
+          in: query
+          description: Quarters ahead (4 or 8)
+          schema:
+            type: number
+            default: 4
+            enum:
+              - 4
+              - 8
+        - name: property_type
+          required: false
+          in: query
+          schema:
+            default: all
+            enum:
+              - all
+              - appartement
+              - maison
+            type: string
+        - name: scenario
+          required: false
+          in: query
+          schema:
+            default: central
+            enum:
+              - central
+              - optimiste
+              - pessimiste
+            type: string
+        - name: level
+          required: true
+          in: query
+          schema:
+            enum:
+              - commune
+              - departement
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    level:
+                      type: string
+                    code:
+                      type: string
+                    nom:
+                      type: string
+                      nullable: true
+                    code_departement:
+                      type: string
+                      nullable: true
+                    last_price:
+                      type: string
+                      nullable: true
+                    forecast_price:
+                      type: string
+                      nullable: true
+                    change_pct:
+                      type: string
+                      nullable: true
+                    lower_80:
+                      type: string
+                      nullable: true
+                    upper_80:
+                      type: string
+                      nullable: true
+                    annual_sales:
+                      type: string
+                      nullable: true
+                    reliability:
+                      type: string
+                      nullable: true
+                      enum:
+                        - elevee
+                        - moyenne
+                        - faible
+                  required:
+                    - level
+                    - code
+      tags: *a4
   /equipment:
     get:
       operationId: EquipmentController_list
@@ -1068,6 +1722,91 @@ paths:
                     - latitude
       tags:
         - map
+  /auth/register:
+    post:
+      operationId: AuthController_register
+      parameters: []
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  email:
+                    type: string
+                  displayName:
+                    type: string
+                  locale:
+                    type: string
+                    enum:
+                      - en
+                      - fr
+                  theme:
+                    type: string
+                    enum:
+                      - light
+                      - dark
+                required:
+                  - id
+                  - email
+                  - displayName
+                  - locale
+                  - theme
+      tags: &a5
+        - auth
+  /auth/login:
+    post:
+      operationId: AuthController_login
+      parameters: []
+      responses:
+        "201":
+          description: ""
+      tags: *a5
+  /auth/logout:
+    post:
+      operationId: AuthController_logout
+      parameters: []
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                required:
+                  - ok
+      tags: *a5
+  /auth/me:
+    get:
+      operationId: AuthController_me
+      parameters: []
+      responses:
+        "200":
+          description: ""
+      tags: *a5
+  /auth/me/settings:
+    patch:
+      operationId: AuthController_updateSettings
+      parameters: []
+      responses:
+        "200":
+          description: ""
+      tags: *a5
+  /auth/me/preferences:
+    patch:
+      operationId: AuthController_updatePreferences
+      parameters: []
+      responses:
+        "200":
+          description: ""
+      tags: *a5
 info:
   title: Homepedia API
   description: API on top of dbt marts from data_platform.

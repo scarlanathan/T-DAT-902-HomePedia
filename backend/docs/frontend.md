@@ -64,6 +64,18 @@ Composite score combining DVF price, FiLoSoFi social mix, and BPE quality-of-lif
 
 Returns rows from `fact_transaction` (optionally includes `code_commune`, `nom_commune`).
 
+### Prédictions / Price forecast
+
+Quarterly €/m² forecasts written by the `data_platform/forecast` job. Common params:
+`property_type` = `all` (default) | `appartement` | `maison`, `scenario` = `central` (default) | `optimiste` | `pessimiste`,
+`horizon` = `4` (default) | `8` quarters. Numeric values come back as strings (pg `numeric`/`bigint`), dates as `YYYY-MM-DD`.
+If the forecast tables are not built yet, the endpoints return empty payloads instead of a 500.
+
+- `GET /forecast/model` → `{ model, scenarios, backtest }` – model metadata (`null` if none), rate hypotheses per scenario × quarter, backtest MAPE / 80 % coverage per level × horizon.
+- `GET /forecast/series?level=commune&code=69123&property_type=all` → `{ level, code, nom, property_type, history, forecast, summary, fallback }` – observed quarters (asc), forecast points per scenario with 80 % band, one summary row per scenario. `code` is optional for `level=france` (`FR`). `fallback` = `{ level: 'departement', code }` when a commune has no forecast (too few sales). 404 if neither history nor forecast exist.
+- `GET /forecast/map?level=departement&scenario=central&horizon=4` – one row per département/région: `last_price`, `forecast_price`, `change_pct`, `lower_80`, `upper_80`, `annual_sales`, `reliability`.
+- `GET /forecast/ranking?level=commune&order=desc&code_departement=69&min_annual_sales=50&limit=20&offset=0` – same fields plus `level`, `code_departement`, ordered by `change_pct` then `annual_sales`. `limit` 1–200.
+
 ## Example (Next.js)
 
 ```ts

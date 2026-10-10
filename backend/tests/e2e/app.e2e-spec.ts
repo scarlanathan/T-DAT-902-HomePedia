@@ -334,6 +334,65 @@ class MockDbService {
       };
     }
 
+    if (text.includes('FROM app_price_forecast_model')) {
+      return {
+        rows: [
+          {
+            trained_at: '2026-10-01T00:00:00.000Z',
+            history_start: '2014-01-01',
+            history_end: '2026-04-01',
+            horizon_quarters: 8,
+            method: 'damped_local_trend',
+            rate_elasticity: '-0.035',
+            damping_phi: '0.9',
+            mean_reversion_kappa: '0.05',
+            last_rate_pct: '3.2',
+            last_rate_month: '2026-08-01',
+            n_series: { commune: 4120, departement: 96, region: 13, france: 1 },
+          },
+        ],
+      };
+    }
+
+    if (text.includes('FROM app_price_forecast_scenario')) {
+      return {
+        rows: [
+          {
+            scenario: 'central',
+            label: 'Central',
+            description: 'Taux stables',
+            period_quarter: '2026-07-01',
+            horizon: 1,
+            rate_pct: '3.2',
+            national_change_pct_year: '0.5',
+          },
+        ],
+      };
+    }
+
+    if (text.includes('FROM app_price_forecast_backtest')) {
+      // Simulates a table not yet created by the forecast job.
+      throw Object.assign(new Error('relation "app_price_forecast_backtest" does not exist'), { code: '42P01' });
+    }
+
+    if (text.includes('FROM app_price_forecast_summary')) {
+      return {
+        rows: [
+          {
+            code: '69',
+            nom: 'Rhône',
+            last_price: '3900',
+            forecast_price: '3950',
+            change_pct: '1.28',
+            lower_80: '3800',
+            upper_80: '4100',
+            annual_sales: '12000',
+            reliability: 'elevee',
+          },
+        ],
+      };
+    }
+
     return { rows: [] };
   }
 }
@@ -548,5 +607,32 @@ describe('API e2e', () => {
       .expect(200);
     expect(Array.isArray(res.body)).toBe(true);
     expect(res.body[0].transaction_id).toBe('tx_1');
+  });
+
+  it('GET /forecast/model returns model, scenarios and tolerates missing backtest table', async () => {
+    const res = await request(app.getHttpServer()).get('/forecast/model').expect(200);
+    expect(res.body.model.horizon_quarters).toBe(8);
+    expect(res.body.model.n_series.departement).toBe(96);
+    expect(res.body.scenarios[0].scenario).toBe('central');
+    expect(res.body.backtest).toEqual([]);
+  });
+
+  it('GET /forecast/map validates horizon', async () => {
+    await request(app.getHttpServer()).get('/forecast/map?level=departement&horizon=6').expect(400);
+  });
+
+  it('GET /forecast/map returns rows', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/forecast/map?level=departement&scenario=central&property_type=all&horizon=8')
+      .expect(200);
+    expect(res.body[0].code).toBe('69');
+    expect(res.body[0].change_pct).toBe('1.28');
+    const call = db.calls.find((c) => c.text.includes('FROM app_price_forecast_summary'));
+    expect(call?.text).toContain('price_h8 AS forecast_price');
+    expect(call?.params).toEqual(['departement', 'central', 'all']);
+  });
+
+  it('GET /forecast/series returns 404 when nothing exists', async () => {
+    await request(app.getHttpServer()).get('/forecast/series?level=commune&code=00000').expect(404);
   });
 });

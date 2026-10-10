@@ -72,6 +72,29 @@ models:
   - name: app_city_housing_summary
     description: Pre-aggregated commune × month DVF metrics for API/UI.
 
+  - name: app_price_history
+    description: >
+      Quarterly median €/m² (dwelling sales, mutation grain) per level
+      (france/region/departement/commune) × property type (all/appartement/maison).
+      Input of the price forecast job (data_platform/forecast) which writes the
+      app_price_forecast* tables (declared as source `forecast`).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [level, code, property_type, period_quarter]
+    columns:
+      - name: level
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['france', 'region', 'departement', 'commune']
+      - name: property_type
+        tests:
+          - accepted_values:
+              values: ['all', 'appartement', 'maison']
+      - name: median_price_per_sqm
+        tests:
+          - not_null
+
   - name: app_city_social_summary
     description: FiLoSoFi social indicators per commune (latest millésime).
     columns:

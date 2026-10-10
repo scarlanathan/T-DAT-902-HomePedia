@@ -19,6 +19,7 @@ export const en = {
     logout: "Log out",
     metrics: "Metrics",
     ranking: "Ranking",
+    predictions: "Predictions",
     navLabel: "Main navigation",
     userMenu: "Account menu",
     language: "Language",
@@ -380,6 +381,183 @@ export const en = {
     rankingTitle: "Ranking",
     rankingBody:
       "Compare communes side by side and sort them by opportunity score.",
+    predictionsTitle: "Predictions",
+    predictionsBody:
+      "Explore the expected change in prices over 1 or 2 years, under three mortgage-rate scenarios.",
+  },
+  forecast: {
+    title: "Housing market forecasts",
+    description:
+      "Quarterly median price per m² (DVF) and an 8-quarter outlook under three mortgage-rate scenarios, for France, regions, departments and communes.",
+    notFound: "No price history or forecast is available for {name}.",
+    disclaimer:
+      "These forecasts are statistical estimates built from past DVF sales and rate assumptions. They are uncertain, can be wrong and are not investment advice.",
+    levels: {
+      france: "France",
+      region: "Region",
+      departement: "Department",
+      commune: "Commune",
+    },
+    propertyTypes: {
+      all: "All properties",
+      appartement: "Apartments",
+      maison: "Houses",
+    },
+    scenarios: {
+      central: "Central",
+      optimiste: "Optimistic",
+      pessimiste: "Pessimistic",
+    },
+    reliability: {
+      elevee: "High",
+      moyenne: "Medium",
+      faible: "Low",
+    },
+    controls: {
+      level: "Geographic level",
+      region: "Region",
+      departement: "Department",
+      commune: "Commune",
+      propertyType: "Property type",
+      scenario: "Scenario",
+      horizon: "Horizon",
+      horizon1y: "1 year",
+      horizon2y: "2 years",
+      choose: "Choose…",
+    },
+    pick: {
+      region: "Choose a region to see its price outlook.",
+      departement: "Choose a department, or click one on the map below.",
+      commune: "Search a commune to see its price outlook.",
+    },
+    errors: {
+      model: "Could not load the model description.",
+      series: "Could not load the price forecast.",
+      map: "Could not load the forecast map.",
+      ranking: "Could not load the forecast ranking.",
+    },
+    fallback: {
+      notice:
+        "{commune} has too few sales for a reliable forecast of its own. Showing the forecast for its department, {departement}, with the commune's history for comparison.",
+      view: "View {departement}",
+    },
+    kpi: {
+      sectionLabel: "Key forecast figures",
+      noSummary: "No forecast summary for this selection.",
+      current: "Current price",
+      currentHint: "Model level for {quarter} (observed median: {observed})",
+      forecast: "Forecast price",
+      forecastHint: "{quarter} · {scenario} scenario",
+      change: "Expected change",
+      changeHint: "Over {horizon}",
+      interval: "80% interval (€/m²)",
+      intervalHint: "The price should fall in this range 8 times out of 10",
+      reliability: "Reliability",
+      reliabilityHint: "Based on sales volume and past forecast error",
+      sales: "Annual sales",
+      salesHint: "Sales recorded over the last 4 quarters",
+    },
+    chart: {
+      title: "Price history and outlook",
+      description:
+        "Solid line: observed quarterly median. Dashed lines: forecast per scenario, with the 80% interval of the selected scenario shaded.",
+      history: "History · {name}",
+      interval: "80% interval",
+      ariaLabel: "Chart of median price per m² history and forecast",
+      empty: "No price history available.",
+    },
+    map: {
+      title: "Outlook by department",
+      description: "Expected change in median price over {horizon}. Click a department to select it.",
+      footnote:
+        "Moselle (57), Bas-Rhin (67) and Haut-Rhin (68) are not covered by DVF (local land register), so they have no data.",
+      tooltipChange: "Expected change",
+      tooltipPrice: "Forecast price",
+      noData: "No forecast",
+      noDataLegend: "No data (incl. {codes}, not in DVF)",
+      legendTitle: "Expected change",
+      geoError: "Department shapes could not be loaded.",
+    },
+    ranking: {
+      titleUp: "Top 10 rises",
+      titleDown: "Top 10 falls",
+      filteredBy: "Communes in {departement}",
+      descriptionAll: "Areas ranked by expected change for the selected scenario and horizon.",
+      orderLabel: "Ranking order",
+      up: "Rises",
+      down: "Falls",
+      levelLabel: "Ranking level",
+      communes: "Communes",
+      departements: "Departments",
+      empty: "No forecast available for this selection.",
+      area: "Area",
+      lastPrice: "Current €/m²",
+      forecastPrice: "Forecast €/m²",
+      change: "Change",
+      reliability: "Reliability",
+    },
+    method: {
+      title: "Assumptions & method",
+      description:
+        "How the forecast is built, which rate paths each scenario assumes, and how well it did on past data.",
+      notTrained: "The forecast model has not been trained yet.",
+      modelCard: "Model",
+      history: "Training history",
+      trainedAt: "Trained on",
+      elasticity: "Rate sensitivity",
+      elasticityValue: "{value} on prices per +1 pt of mortgage rate",
+      damping: "Trend damping (φ)",
+      meanReversion: "Mean reversion (κ)",
+      lastRate: "Last observed mortgage rate",
+      series: "Series forecast",
+      scenariosTitle: "Scenarios: assumed average mortgage rate",
+      scenariosHint: "Average new home-loan rate assumed for each future quarter.",
+      noScenarios: "No scenario assumptions available.",
+      backtestTitle: "Backtest: does the model beat “no change”?",
+      backtestExplain:
+        "We replayed the model on past years and compared its error (MAPE, mean absolute percentage error) with a naive forecast that simply assumes prices stay unchanged. A forecast is only useful if its error is lower than the naive one: the “gain” column shows by how many points. The coverage column shows how often the actual price fell within the 80% interval (ideally close to 80%).",
+      noBacktest: "No backtest results available.",
+      colLevel: "Level",
+      colHorizon: "Horizon",
+      colSeries: "Series",
+      colMapeModel: "Model MAPE",
+      colMapeNaive: "Naive MAPE",
+      colGain: "Gain",
+      colCoverage: "80% coverage",
+      horizonQuarters: "{count} qtr",
+      backtestFootnote:
+        "Lower MAPE is better. A positive gain means the model is more accurate than the naive baseline.",
+    },
+    consensus: {
+      title: "Market consensus (external sources)",
+      description: "Published figures and outlooks from other institutions, for comparison (as of {date}).",
+      range: "{min} to {max}",
+      groupObserved: "Observed prices",
+      groupForecast: "Third-party outlooks",
+      groupMarket: "Volumes & rates",
+      items: {
+        notairesInsee: "Notaires-Insee index, Q2 2026 (1 year)",
+        notairesInseeNote:
+          "Apartments -0.1%, houses -1.3%, Île-de-France -0.3%, rest of France -1.0%.",
+        avantContrats: "Notaires pre-sale agreements (1 year)",
+        avantContratsNote:
+          "Price trend from pre-contracts at end of July 2026 (note de conjoncture no. 72).",
+        volumes: "Sales over 12 months",
+        volumesNote: "Existing-home transactions to end of June 2026.",
+        creditRate: "Average mortgage rate",
+        creditRateNote: "August 2026, all loan terms.",
+        usury: "Usury cap, Q4 2026",
+        usuryNote: "Loans of 20 years or more.",
+        ecb: "ECB deposit rate",
+        ecbNote: "After the 10 Sept 2026 rate hike.",
+        sp: "S&P Global, prices in 2026",
+        spNote: "Then +2.2% expected in 2027.",
+        creditAgricole: "Crédit Agricole, end of 2026",
+        creditAgricoleNote: "Expected year-on-year price change at end of 2026.",
+        seloger: "SeLoger-Meilleurs Agents, 2027",
+        selogerNote: "Favourable scenario for 2027.",
+      },
+    },
   },
   propertyType: {
     Appartement: "Apartment",
@@ -387,4 +565,9 @@ export const en = {
   },
 } as const;
 
-export type Messages = typeof en;
+type DeepStringRecord<T> = {
+  readonly [K in keyof T]: T[K] extends string ? string : DeepStringRecord<T[K]>;
+};
+
+/** Same shape as `en`, with string values widened so other locales can differ. */
+export type Messages = DeepStringRecord<typeof en>;

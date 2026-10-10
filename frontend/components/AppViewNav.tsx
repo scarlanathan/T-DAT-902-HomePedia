@@ -39,6 +39,16 @@ export function AppViewNav() {
         >
           {t("header.ranking")}
         </Link>
+        <Link
+          href="/predictions"
+          data-tour="predictions"
+          aria-current={pathname === "/predictions" ? "page" : undefined}
+          className={`${navLinkClass} ${
+            pathname === "/predictions" ? navLinkActiveClass : navLinkInactiveClass
+          }`}
+        >
+          {t("header.predictions")}
+        </Link>
       </div>
     </nav>
   );

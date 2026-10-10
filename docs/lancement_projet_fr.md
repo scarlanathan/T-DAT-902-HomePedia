@@ -126,6 +126,20 @@ sous-commandes `url` / `file` / `sample` :
 ./scripts/load_codes_postaux.sh  url --url 'https://datanova.laposte.fr/data-fair/api/v1/datasets/laposte-hexasmal/raw' --truncate
 ```
 
+### Prédictions du marché (historique DVF multi-années + modèle)
+
+La prévision des prix exige plusieurs années de DVF (le chargement par défaut ne
+prend que la dernière). Voir `docs/predictions_fr.md` pour la méthode.
+
+```bash
+./scripts/load_dvf_history.sh        # DVF 2021→2025 (≈ 17 M lignes, COPY) ; DVF_YEARS="2024 2025" pour réduire
+./scripts/dbt.sh run                 # construit app_price_history (mart trimestriel)
+./scripts/forecast_prices.sh         # entraîne le modèle → app_price_forecast* (≈ 1-2 min)
+```
+
+Dans Airflow, la tâche `forecast_prices` s'exécute automatiquement après
+`dbt_test` dans le DAG `homepedia_gold_refresh`.
+
 ### Faire tourner dbt
 
 ```bash

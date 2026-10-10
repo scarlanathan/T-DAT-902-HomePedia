@@ -18,6 +18,10 @@ USER airflow
 # Loader runtime deps (kept in sync with data_platform/requirements.txt).
 RUN pip install --no-cache-dir "psycopg[binary]>=3.1.0" "python-dotenv>=1.0.0"
 
+# Price forecast deps (data_platform/requirements-ml.txt); numpy/pandas already
+# ship with the Airflow image, this only guarantees the minimum versions.
+RUN pip install --no-cache-dir "numpy>=1.26" "pandas>=2.1"
+
 # dbt in its own venv so its dependency pins never fight Airflow's.
 RUN python -m venv /home/airflow/dbt-venv \
     && /home/airflow/dbt-venv/bin/pip install --no-cache-dir \

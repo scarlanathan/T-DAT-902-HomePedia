@@ -3,7 +3,8 @@
 Terminal DAG triggered by the domain ingestion DAGs. Rebuilds the dbt layer
 (``stg_* -> normalized_* -> dim_/fact_ -> app_*``) on the dev database and runs
 the data-quality tests, reusing ``scripts/dbt.sh`` (dbt on PATH via the image's
-isolated venv).
+isolated venv), then retrains the price forecast (``scripts/forecast_prices.sh``)
+on the refreshed ``app_price_history`` mart.
 
 ``schedule=None``: it only runs when triggered (or manually), so multiple
 domain loads in the same window coalesce instead of racing — ``max_active_runs=1``
@@ -39,4 +40,9 @@ with DAG(
         bash_command=f"bash {SCRIPTS_DIR}/dbt.sh test",
     )
 
-    dbt_deps >> dbt_run >> dbt_test
+    forecast_prices = BashOperator(
+        task_id="forecast_prices",
+        bash_command=f"bash {SCRIPTS_DIR}/forecast_prices.sh",
+    )
+
+    dbt_deps >> dbt_run >> dbt_test >> forecast_prices

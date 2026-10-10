@@ -181,3 +181,120 @@ export type MapTransactionPoint = {
   latitude: number;
   code_commune: string | null;
 };
+
+/* ---------------------------------------------------------------------------
+ * Market forecast (`/forecast/*`). Dates are "YYYY-MM-DD" strings, numeric and
+ * bigint columns arrive as strings (parse with `parseNumeric`).
+ * ------------------------------------------------------------------------- */
+
+export type ForecastLevel = "france" | "region" | "departement" | "commune";
+export type ForecastPropertyType = "all" | "appartement" | "maison";
+export type ForecastScenario = "central" | "optimiste" | "pessimiste";
+export type ForecastHorizon = 4 | 8;
+export type ForecastReliability = "elevee" | "moyenne" | "faible";
+
+export type ForecastModelRow = {
+  trained_at: string | null;
+  history_start: string | null;
+  history_end: string | null;
+  horizon_quarters: number | null;
+  method: string | null;
+  rate_elasticity: string | null;
+  damping_phi: string | null;
+  mean_reversion_kappa: string | null;
+  last_rate_pct: string | null;
+  last_rate_month: string | null;
+  n_series: Record<string, number> | null;
+};
+
+export type ForecastScenarioRow = {
+  scenario: ForecastScenario;
+  label: string | null;
+  description: string | null;
+  period_quarter: string;
+  horizon: number;
+  rate_pct: string | null;
+  national_change_pct_year: string | null;
+};
+
+export type ForecastBacktestRow = {
+  level: ForecastLevel;
+  horizon: number;
+  n_series: number;
+  mape_model: string | null;
+  mape_naive: string | null;
+  coverage_80: string | null;
+};
+
+export type ForecastModelResponse = {
+  model: ForecastModelRow | null;
+  scenarios: ForecastScenarioRow[];
+  backtest: ForecastBacktestRow[];
+};
+
+export type ForecastHistoryPoint = {
+  period_quarter: string;
+  median_price_per_sqm: string | null;
+  sale_count: string | null;
+};
+
+export type ForecastPoint = {
+  scenario: ForecastScenario;
+  period_quarter: string;
+  horizon: number;
+  median_price_per_sqm: string | null;
+  lower_80: string | null;
+  upper_80: string | null;
+};
+
+export type ForecastSummaryRow = {
+  level: ForecastLevel;
+  code: string;
+  nom: string | null;
+  code_departement: string | null;
+  property_type: ForecastPropertyType;
+  scenario: ForecastScenario;
+  last_quarter: string | null;
+  last_price: string | null;
+  last_observed_price: string | null;
+  annual_sales: string | null;
+  trend_pct_year: string | null;
+  price_h4: string | null;
+  change_pct_h4: string | null;
+  lower_80_h4: string | null;
+  upper_80_h4: string | null;
+  price_h8: string | null;
+  change_pct_h8: string | null;
+  lower_80_h8: string | null;
+  upper_80_h8: string | null;
+  reliability: ForecastReliability | null;
+  trained_at: string | null;
+};
+
+export type ForecastSeriesResponse = {
+  level: ForecastLevel;
+  code: string;
+  nom: string | null;
+  property_type: ForecastPropertyType;
+  history: ForecastHistoryPoint[];
+  forecast: ForecastPoint[];
+  summary: ForecastSummaryRow[];
+  fallback: { level: "departement"; code: string } | null;
+};
+
+export type ForecastMapRow = {
+  code: string;
+  nom: string | null;
+  last_price: string | null;
+  forecast_price: string | null;
+  change_pct: string | null;
+  lower_80: string | null;
+  upper_80: string | null;
+  annual_sales: string | null;
+  reliability: ForecastReliability | null;
+};
+
+export type ForecastRankingRow = ForecastMapRow & {
+  level: "commune" | "departement";
+  code_departement: string | null;
+};

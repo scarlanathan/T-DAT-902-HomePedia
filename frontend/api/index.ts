@@ -8,6 +8,21 @@ export type {
   CommuneRankingRow,
   DepartmentRow,
   EquipmentRow,
+  ForecastBacktestRow,
+  ForecastHistoryPoint,
+  ForecastHorizon,
+  ForecastLevel,
+  ForecastMapRow,
+  ForecastModelResponse,
+  ForecastModelRow,
+  ForecastPoint,
+  ForecastPropertyType,
+  ForecastRankingRow,
+  ForecastReliability,
+  ForecastScenario,
+  ForecastScenarioRow,
+  ForecastSeriesResponse,
+  ForecastSummaryRow,
   HealthResponse,
   IrisSocialSummaryRow,
   LocationRow,
@@ -45,6 +60,12 @@ export {
 } from "./stats";
 export { fetchTransactions } from "./transactions";
 export { fetchMapTransactions } from "./map";
+export {
+  fetchForecastMap,
+  fetchForecastModel,
+  fetchForecastRanking,
+  fetchForecastSeries,
+} from "./forecast";
 export {
   fetchCurrentUser,
   loginUser,

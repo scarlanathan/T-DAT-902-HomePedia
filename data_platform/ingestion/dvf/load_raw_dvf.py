@@ -68,35 +68,12 @@ EXPECTED_FIELDS = [
     "latitude",
 ]
 
-INSERT_SQL = """
-INSERT INTO raw_dvf_transaction (
-    source_file, source_row_number,
-    id_mutation, date_mutation, numero_disposition, nature_mutation, valeur_fonciere,
-    adresse_numero, adresse_suffixe, adresse_nom_voie, adresse_code_voie,
-    code_postal, code_commune, nom_commune, code_departement,
-    ancien_code_commune, ancien_nom_commune,
-    id_parcelle, ancien_id_parcelle, numero_volume,
-    lot1_numero, lot1_surface_carrez, lot2_numero, lot2_surface_carrez,
-    lot3_numero, lot3_surface_carrez, lot4_numero, lot4_surface_carrez,
-    lot5_numero, lot5_surface_carrez,
-    nombre_lots, code_type_local, type_local, surface_reelle_bati, nombre_pieces_principales,
-    code_nature_culture, nature_culture, code_nature_culture_speciale, nature_culture_speciale,
-    surface_terrain, longitude, latitude
-) VALUES (
-    %s, %s,
-    %s, %s, %s, %s, %s,
-    %s, %s, %s, %s,
-    %s, %s, %s, %s,
-    %s, %s,
-    %s, %s, %s,
-    %s, %s, %s, %s,
-    %s, %s, %s, %s,
-    %s, %s,
-    %s, %s, %s, %s, %s,
-    %s, %s, %s, %s,
-    %s, %s, %s
+
+COPY_SQL = (
+    "COPY raw_dvf_transaction (source_file, source_row_number, "
+    + ", ".join(EXPECTED_FIELDS)
+    + ") FROM STDIN"
 )
-"""
 
 
 def _open_csv_stream(
@@ -164,35 +141,34 @@ def load_rows(
     max_rows: int | None,
     batch_size: int,
 ) -> int:
+    """Stream rows with COPY (national yearly files are ~3-4M lines; INSERT is far too slow).
+
+    batch_size only controls how often progress is printed.
+    """
     header_checked = False
-    buffer: list[tuple] = []
     total = 0
     row_num = 0
 
     with conn.cursor() as cur:
-        for row in rows:
-            row_num += 1
-            if not header_checked:
-                missing = [f for f in EXPECTED_FIELDS if f not in row]
-                if missing:
-                    raise ValueError(
-                        f"CSV missing expected columns: {missing}. "
-                        "Use geo-DVF export from data.gouv (see README)."
-                    )
-                header_checked = True
+        with cur.copy(COPY_SQL) as copy:
+            for row in rows:
+                row_num += 1
+                if not header_checked:
+                    missing = [f for f in EXPECTED_FIELDS if f not in row]
+                    if missing:
+                        raise ValueError(
+                            f"CSV missing expected columns: {missing}. "
+                            "Use geo-DVF export from data.gouv (see README)."
+                        )
+                    header_checked = True
 
-            buffer.append(_row_tuple(source_label, row_num, row))
-            if len(buffer) >= batch_size:
-                cur.executemany(INSERT_SQL, buffer)
-                total += len(buffer)
-                buffer.clear()
+                copy.write_row(_row_tuple(source_label, row_num, row))
+                total += 1
+                if total % (batch_size * 250) == 0:
+                    print(f"  ... {total} rows", flush=True)
 
-            if max_rows is not None and row_num >= max_rows:
-                break
-
-        if buffer:
-            cur.executemany(INSERT_SQL, buffer)
-            total += len(buffer)
+                if max_rows is not None and row_num >= max_rows:
+                    break
 
     conn.commit()
     return total

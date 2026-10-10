@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ForecastDashboard } from "@/components/ForecastDashboard";
 import { HomeDashboard } from "@/components/HomeDashboard";
 import { OnboardingModal } from "@/components/OnboardingModal";
 import { RankingDashboard } from "@/components/RankingDashboard";
@@ -14,10 +15,12 @@ export function DashboardViewShell() {
   const router = useRouter();
   const pathname = usePathname();
   const showRanking = pathname === "/ranking";
-  const showMetrics = !showRanking;
+  const showForecast = pathname === "/predictions";
+  const showMetrics = !showRanking && !showForecast;
 
   const [metricsMounted, setMetricsMounted] = useState(showMetrics);
   const [rankingMounted, setRankingMounted] = useState(showRanking);
+  const [forecastMounted, setForecastMounted] = useState(showForecast);
 
   useEffect(() => {
     if (ready && !user) router.replace("/login");
@@ -26,7 +29,8 @@ export function DashboardViewShell() {
   useEffect(() => {
     if (showMetrics) setMetricsMounted(true);
     if (showRanking) setRankingMounted(true);
-  }, [showMetrics, showRanking]);
+    if (showForecast) setForecastMounted(true);
+  }, [showMetrics, showRanking, showForecast]);
 
   if (!ready) {
     return (
@@ -54,6 +58,11 @@ export function DashboardViewShell() {
       {rankingMounted ? (
         <div className={showRanking ? undefined : "hidden"} aria-hidden={!showRanking}>
           <RankingDashboard />
+        </div>
+      ) : null}
+      {forecastMounted ? (
+        <div className={showForecast ? undefined : "hidden"} aria-hidden={!showForecast}>
+          <ForecastDashboard />
         </div>
       ) : null}
       <OnboardingModal />
