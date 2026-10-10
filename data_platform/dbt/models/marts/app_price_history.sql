@@ -52,6 +52,14 @@ WITH mutation AS (
     GROUP BY n.id_mutation, n.code_commune
 ),
 
+-- Materialized so the planner hashes this small lookup instead of re-evaluating
+-- the COG view per mutation.
+arrondissement AS MATERIALIZED (
+    SELECT code_commune, code_commune_parent
+    FROM {{ ref('normalized_cog_commune') }}
+    WHERE typecom = 'ARM'
+),
+
 priced AS (
     SELECT
         m.code_commune,
@@ -68,8 +76,8 @@ priced AS (
     FROM mutation m
     LEFT JOIN {{ ref('dim_departement') }} d
         ON d.code_departement = m.code_departement
-    LEFT JOIN {{ ref('normalized_cog_commune') }} arm
-        ON arm.code_commune = m.code_commune AND arm.typecom = 'ARM'
+    LEFT JOIN arrondissement arm
+        ON arm.code_commune = m.code_commune
     WHERE m.total_surface_bati >= 10
       AND m.n_commercial = 0
       AND m.valeur_fonciere / m.total_surface_bati BETWEEN 100 AND 30000

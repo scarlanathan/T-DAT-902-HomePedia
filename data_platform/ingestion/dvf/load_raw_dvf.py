@@ -171,6 +171,11 @@ def load_rows(
                     break
 
     conn.commit()
+    # Without fresh statistics the planner estimates the staging views at ~1 row and
+    # picks nested loops that make the dbt marts run for hours.
+    with conn.cursor() as cur:
+        cur.execute("ANALYZE raw_dvf_transaction")
+    conn.commit()
     return total
 
 
